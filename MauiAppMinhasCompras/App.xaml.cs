@@ -1,12 +1,10 @@
-﻿using SQLite;
-namespace MauiAppMinhasCompras.Models
+﻿namespace MauiAppMinhasCompras; 
+
+    public partial class App : Application
 {
-    public class Produto
+    public App()
     {
-        [PrimaryKey, AutoIncrement]
-        public int Id { get; set; }
-        public string Descricao { get; set; }
-        public double Quantidade { get; set; }
-        public double Preco { get; set; }
+        InitializeComponent();
+        MainPage = new NavigationPage(new Views.ListaProduto());
     }
 }
