@@ -14,7 +14,9 @@
                Placeholder="Buscar produtos..."
                TextChanged="txt_search_TextChanged"
                Margin="10,5"/>
-        <ListView x:Name="lst_produtos">
+        <ListView x:Name="lst_produtos"
+              HasUnevenRows="True"
+              SeparatorVisibility="Default">
             <ListView.Header>
                 <Grid ColumnDefinitions="*, *, *, *, *, *">
                     <Label Grid.Column="0" Text="ID" />
