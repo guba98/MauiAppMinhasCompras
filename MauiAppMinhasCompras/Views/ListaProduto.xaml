@@ -11,8 +11,9 @@
     
     <VerticalStackLayout>
         <SearchBar x:Name="txt_search" 
-                   Placeholder="Busca de produtos"
-                   TextChanged="txt_search_TextChanged"/>
+               Placeholder="Buscar produtos..."
+               TextChanged="txt_search_TextChanged"
+               Margin="10,5"/>
         <ListView x:Name="lst_produtos">
             <ListView.Header>
                 <Grid ColumnDefinitions="*, *, *, *, *, *">
