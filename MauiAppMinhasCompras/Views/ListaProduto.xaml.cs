@@ -10,34 +10,24 @@ public partial class ListaProduto : ContentPage
     public ListaProduto()
     {
         InitializeComponent();
+
         lst_produtos.ItemsSource = lista;
     }
 
-    protected override async void OnAppearing()
+    protected async override void OnAppearing()
     {
-        base.OnAppearing();
-        await CarregarLista();
-    }
+        try
+        {
+            lista.Clear();
 
-    private async Task CarregarLista(string textoBusca = null)
-    {
-        lista.Clear();
+            List<Produto> tmp = await App.Db.GetAll();
 
-        List<Produto> tmp;
-
-        if (string.IsNullOrWhiteSpace(textoBusca))
-            tmp = await App.Db.GetAll();
-        else
-            tmp = await App.Db.Search(textoBusca);
-
-        foreach (var item in tmp)
-            lista.Add(item);
-    }
-
-    private async void txt_search_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        string q = e.NewTextValue?.Trim();
-        await CarregarLista(q);
+            tmp.ForEach(i => lista.Add(i));
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Ops", ex.Message, "OK");
+        }
     }
 
     private void ToolbarItem_Clicked(object sender, EventArgs e)
@@ -45,6 +35,7 @@ public partial class ListaProduto : ContentPage
         try
         {
             Navigation.PushAsync(new Views.NovoProduto());
+
         }
         catch (Exception ex)
         {
@@ -52,30 +43,48 @@ public partial class ListaProduto : ContentPage
         }
     }
 
+    private async void txt_search_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        try
+        {
+            string q = e.NewTextValue;
+
+            lista.Clear();
+
+            List<Produto> tmp = await App.Db.Search(q);
+
+            tmp.ForEach(i => lista.Add(i));
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Ops", ex.Message, "OK");
+        }
+    }
+
     private void ToolbarItem_Clicked_1(object sender, EventArgs e)
     {
         double soma = lista.Sum(i => i.Total);
-        string msg = $"O total é: {soma:C}";
-        DisplayAlert("Total dos produtos", msg, "OK");
+
+        string msg = $"O total é {soma:C}";
+
+        DisplayAlert("Total dos Produtos", msg, "OK");
     }
 
     private async void MenuItem_Clicked(object sender, EventArgs e)
     {
         try
         {
-            MenuItem selecionado = sender as MenuItem;
+            MenuItem selecinado = sender as MenuItem;
 
-            Produto p = selecionado.BindingContext as Produto;
+            Produto p = selecinado.BindingContext as Produto;
 
-            bool confirmar = await DisplayAlert("Confirmar", $"Deseja deletar o item {p.Descricao}?", "Sim", "Não");
-            if (confirmar)
+            bool confirm = await DisplayAlert(
+                "Tem Certeza?", $"Remover {p.Descricao}?", "Sim", "Não");
+
+            if (confirm)
             {
                 await App.Db.Delete(p.Id);
                 lista.Remove(p);
-            }
-            else
-            {
-                await DisplayAlert("Erro", "Não foi possível deletar o registro.", "OK");
             }
         }
         catch (Exception ex)
@@ -90,8 +99,10 @@ public partial class ListaProduto : ContentPage
         {
             Produto p = e.SelectedItem as Produto;
 
-            Navigation.PushAsync(new Views.EditarProduto { BindingContext = p });
-
+            Navigation.PushAsync(new Views.EditarProduto
+            {
+                BindingContext = p,
+            });
         }
         catch (Exception ex)
         {
