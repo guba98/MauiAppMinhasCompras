@@ -63,25 +63,15 @@ public partial class ListaProduto : ContentPage
     {
         try
         {
-            var menuItem = sender as MenuItem;
-            var produto = menuItem?.CommandParameter as Produto ?? menuItem?.BindingContext as Produto;
+            MenuItem selecionado = sender as MenuItem;
 
-            if (produto == null)
+            Produto p = selecionado.BindingContext as Produto;
+
+            bool confirmar = await DisplayAlert("Confirmar", $"Deseja deletar o item {p.Descricao}?", "Sim", "Não");
+            if (confirmar)
             {
-                await DisplayAlert("Erro", "Produto não encontrado.", "OK");
-                return;
-            }
-
-            bool confirmar = await DisplayAlert("Confirmar", "Deseja deletar o item selecionado?", "Sim", "Não");
-            if (!confirmar)
-                return;
-
-            int rows = await App.Db.Delete(produto.Id);
-
-            if (rows > 0)
-            {
-                lista.Remove(produto);
-                await DisplayAlert("Sucesso!", "Registro Deletado", "OK");
+                await App.Db.Delete(p.Id);
+                lista.Remove(p);
             }
             else
             {
@@ -91,6 +81,21 @@ public partial class ListaProduto : ContentPage
         catch (Exception ex)
         {
             await DisplayAlert("Ops", ex.Message, "OK");
+        }
+    }
+
+    private void lst_produtos_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+    {
+        try
+        {
+            Produto p = e.SelectedItem as Produto;
+
+            Navigation.PushAsync(new Views.EditarProduto { BindingContext = p });
+
+        }
+        catch (Exception ex)
+        {
+            DisplayAlert("Ops", ex.Message, "OK");
         }
     }
 }
